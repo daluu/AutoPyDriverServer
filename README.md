@@ -36,6 +36,8 @@ NOTES/Caveats
 
 AutoPyDriverServer is simply a WebDriver server interface to AutoPy. Issues you experience may usually be the result of an issue with AutoPy rather than AutoPyDriverServer itself. If you are experienced with Python, it would be wise to test your issue/scenario using native Python AutoPy API to confirm whether the issue is with AutoPy or AutoPyDriverServer. The source code of AutoPyDriverServer will point you to the appropriate AutoPy API or see the [AutoPy Python API specifics for debugging](https://github.com/daluu/AutoPyDriverServer/wiki/AutoPy-Python-API-specifics-for-debugging).
 
+The server isn't flawless and may at times appear to crash on you (on Windows, resulting ina popup about program hanging and whether you want to close it or do something else), upon receivng some WebDriver command request. But for the most part or most of the time, it works.
+
 WebDriver API/command support and mapping to AutoPy API
 -------------------------------------------------------
 
