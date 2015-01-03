@@ -1,8 +1,12 @@
 from selenium import webdriver
 from os import path
 
-#NOTE: this demo uses images under images subfolder to find by name. 
+# NOTE 1: this demo uses images under images subfolder to find by name. 
 # Be sure to configure AutoPyDriverServer to use that folder for images by name
+
+# NOTE 2: this demo targets the Calculator in Windows 7. But if calculator visually
+# differs in other versions of Windows, and for Mac, Linux, the demo will still work
+# if you replace the images with the equivalents for the other platforms
 
 driver = webdriver.Remote( command_executor='http://127.0.0.1:4723/wd/hub', desired_capabilities={'browserName':'AutoPy','imageRecognitionToleranceValue':0.0})
 print "Desired Capabilities returned by server:\n"
