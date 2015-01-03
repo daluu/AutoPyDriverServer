@@ -1,7 +1,7 @@
 AutoPyDriverServer
 =========
 
-AutoPyDriverServer is a (test) automation tool via image recognition that provides a Selenium WebDriver API via the webdriver JSON  wire protocol to drive to the AutoPy tool/library running as a server. It is adapted from the old Appium server Python implementation (https://github.com/hugs/appium-old).
+AutoPyDriverServer is a (test) automation tool via image recognition that provides a Selenium WebDriver API via the webdriver JSON  wire protocol to drive to the [AutoPy](https://github.com/msanders/autopy) tool/library running as a server. It is adapted from the [old Appium server Python implementation](https://github.com/hugs/appium-old).
 
 AutoPyDriverServer uses the [Bottle micro web-framework](http://www.bottlepy.org), and has the goal of working with all off the shelf Selenium client libraries.
 
@@ -29,17 +29,17 @@ To launch a webdriver-compatible server, run:<br />
 
 For additional parameter info, append the `--help` parameter
 
-Example WebDriver test usage against this server tool can be found in `sample-code` folder. To run the test, startup the server (with customized parameters as needed) and review the example files' code before executing those scripts. Examples use Python WebDriver binding, but any language binding will actually do.
+Example WebDriver test usage against this server tool can be found in `sample-code` folder. To run the test, startup the server (with customized parameters as needed) and review the example files' code before executing those scripts. Examples use Python WebDriver binding, but any language binding will do.
 
 NOTES/Caveats
 -------------
 
-AutoPyDriverServer is simply a WebDriver server interface to AutoPy. Issues you experience may usually be the result of an issue with AutoPy rather than AutoPyDriverServer itself. If you are experienced with Python, it would be wise to test your issue/scenario using native Python AutoPy API to confirm whether the issue is with AutoPy or AutoPyDriverServer. The source code of AutoPyDriverServer will point you to the appropriate AutoPy API or see the wiki documentation here.
+AutoPyDriverServer is simply a WebDriver server interface to AutoPy. Issues you experience may usually be the result of an issue with AutoPy rather than AutoPyDriverServer itself. If you are experienced with Python, it would be wise to test your issue/scenario using native Python AutoPy API to confirm whether the issue is with AutoPy or AutoPyDriverServer. The source code of AutoPyDriverServer will point you to the appropriate AutoPy API or see the [AutoPy Python API specifics for debugging](https://github.com/daluu/AutoPyDriverServer/wiki/AutoPy-Python-API-specifics-for-debugging).
 
 WebDriver API/command support and mapping to AutoPy API
 -------------------------------------------------------
 
-See the wiki pages here for those documentation.
+See [WebDriver API command support and mapping to AutoPy API](https://github.com/daluu/AutoPyDriverServer/wiki/WebDriver-API-command-support-and-mapping-to-AutoPy-API)
 
 Contributing
 ------------
