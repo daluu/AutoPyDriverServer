@@ -15,7 +15,8 @@ Quick Start
 -----------
 
 To get started, clone the repo:<br />
-`git clone git://github.com/hugs/appium`
+
+`git clone git://github.com/daluu/AutoPyDriverServer`
 
 Next, change into the 'autopydriverserver' directory, and install dependencies:<br />
 `pip install -r linux_mac_requirements.txt`<br />
