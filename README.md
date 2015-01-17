@@ -30,7 +30,7 @@ To launch a webdriver-compatible server, run:<br />
 
 For additional parameter info, append the `--help` parameter
 
-Example WebDriver test usage against this server tool can be found in `sample-code` folder. To run the test, startup the server (with customized parameters as needed) and review the example files' code before executing those scripts. Examples use Python WebDriver binding, but any language binding will do.
+Example WebDriver API/client test usage against this server tool can be found in `sample-code` folder. To run the test, startup the server (with customized parameters as needed, recommend set address to 127.0.0.1) and review the example files' code before executing those scripts. Examples use Python WebDriver binding, but any language binding will do.
 
 NOTES/Caveats
 -------------
