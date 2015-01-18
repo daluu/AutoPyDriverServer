@@ -41,11 +41,27 @@ app = Bottle()
 def get_favicon():
     return static_file('favicon.ico', root='.')
 
+def get_platform():
+    if sys.platform == "win32":
+        if platform.release() == "Vista":
+            wd_platform = "VISTA"
+        elif platform.release() == "XP": #?
+            wd_platform = "XP"
+        else:
+            wd_platform = "WINDOWS"
+    elif sys.platform == "darwin":
+        wd_platform = "MAC"
+    else: #sys.platform.startswith('linux'):
+        wd_platform = "LINUX"
+    return wd_platform
+
 @app.route('/wd/hub/status', method='GET')
 def status():
+    wd_platform = get_platform()
     status = {'sessionId': app.SESSION_ID if app.started else None,
               'status': 0,
-              'value': {'build': {'version': 'AutoPyDriverServer 0.1'}}}
+              'value': {'build': {'version': 'AutoPyDriverServer 0.1'}, 
+              'os': {'arch':platform.machine(),'name':wd_platform,'version':platform.release()}}}
     return status
 
 @app.route('/wd/hub/session', method='POST')
@@ -70,18 +86,7 @@ def create_session():
 
 @app.route('/wd/hub/session/<session_id>', method='GET')
 def get_session(session_id=''):
-    if sys.platform == "win32":
-        if platform.release() == "Vista":
-            wd_platform = "VISTA"
-        elif platform.release() == "XP": #?
-            wd_platform = "XP"
-        else:
-            wd_platform = "WINDOWS"
-    elif sys.platform == "darwin":
-        wd_platform = "MAC"
-    else: #sys.platform.startswith('linux'):
-        wd_platform = "LINUX"
-
+    wd_platform = get_platform()
     app_response = {'sessionId': session_id,
                 'status': 0,
                 'value': {"version":"0.1",
@@ -103,7 +108,6 @@ def delete_session(session_id=''):
 
 @app.route('/wd/hub/session/<session_id>/execute', method='POST')
 def execute_script(session_id=''):
-    status = 0
     result = ''
     request_data = request.body.read()
     try:
@@ -121,7 +125,7 @@ def execute_script(session_id=''):
         return {'sessionId': session_id, 'status': 13, 'value': str(sys.exc_info()[0])}
 
     app_response = {'sessionId': session_id,
-        'status': status,
+        'status': 0,
         'value': result}
     return app_response
 
@@ -286,7 +290,6 @@ def _go_to_element(element_id):
 
 def _find_element(session_id, context, many=False):
     try:
-        # TODO: need to support more locator_strategy's
         json_request_data = json.loads(request.body.read())
         locator_strategy = json_request_data.get('using')
         value = json_request_data.get('value')
@@ -306,7 +309,7 @@ def _find_element(session_id, context, many=False):
             if context == "root":
                 pos = autopy.bitmap.capture_screen().find_bitmap(elem,app.tolerance)
             else:
-                canvas = autopy.bitmap.Bitmap.open(decode_value_from_wire(path))
+                canvas = autopy.bitmap.Bitmap.open(decode_value_from_wire(context))
                 pos = canvas.find_bitmap(elem,app.tolerance)
 
             if pos is None:
@@ -324,7 +327,7 @@ def _find_element(session_id, context, many=False):
                         temp_elements.append({'ELEMENT':encode_value_4_wire(path)})
                     found_elements = temp_elements
             else:
-                canvas = autopy.bitmap.Bitmap.open(decode_value_from_wire(path))
+                canvas = autopy.bitmap.Bitmap.open(decode_value_from_wire(context))
                 if canvas.count_of_bitmap(elem,app.tolerance) == 0:
                     found_elements = []
                 else:
@@ -355,7 +358,8 @@ def get_screenshot(session_id=''):
 def keys(session_id=''):
     try:
         request_data = request.body.read()
-        keys = json.loads(request_data).get('value')[0].encode('utf-8')
+        wired_keys = json.loads(request_data).get('value')
+        keys = ''.join(wired_keys)
         autopy.key.type_string(keys)
         return {'sessionId': session_id, 'status': 0}
     except:
@@ -397,6 +401,48 @@ def element_displayed(session_id='', element_id=''):
         response.status = 400
         return {'sessionId': session_id, 'status': 13, 'value': str(sys.exc_info()[0])}
 
+@app.route('/wd/hub/session/<session_id>/file', method='POST')
+def upload_file(session_id=''):
+    try:
+        request_data = request.body.read()
+        b64data = json.loads(request_data).get('file')
+        byteContent = base64.b64decode(b64data)
+        path = os.tempnam()
+        with open(path, 'wb') as f:
+            f.write(byteContent)
+        extracted_files = unzip(path,os.path.dirname(path))        
+    except:
+        response.status = 400
+        return {'sessionId': session_id, 'status': 13, 'value': str(sys.exc_info()[0])}
+
+    # For (remote) file uploads - well currently AutoPyDriverServer will always be "remote"
+    # we can't formally/technically support multiple file uploads yet, due to Selenium issue 2239
+    # as the WebDriver/JSONWireProtocol spec doesn't define how to handle request/response
+    # of multiple files uploaded. Therefore, we assume user upload single file for now
+    result = "".join(extracted_files)
+    app_response = {'sessionId': session_id,
+        'status': 0,
+        'value': result}
+    return app_response
+
+def unzip(source_filename, dest_dir):
+    import zipfile,os.path
+    files_in_zip = []
+    with zipfile.ZipFile(source_filename) as zf:        
+        for member in zf.infolist():
+            words = member.filename.split('/')
+            path = dest_dir
+            for word in words[:-1]:
+                drive, word = os.path.splitdrive(word)
+                head, word = os.path.split(word)
+                if word in (os.curdir, os.pardir, ''): continue
+                path = os.path.join(path, word)
+            zf.extract(member, path)
+            unzipped_file = os.path.join(dest_dir,member.filename)
+            print "Unzipped a file: %s" % unzipped_file
+            files_in_zip.append(unzipped_file)
+    return files_in_zip
+
 @app.error(404)
 def unsupported_command(error):
     response.content_type = 'text/plain'
@@ -435,11 +481,8 @@ if __name__ == '__main__':
         app.image_path = args.images_folder
     else:
         app.image_path = os.path.join(os.path.curdir,'images')
-    if args.tolerance != 0.0:
-        app.tolerance = args.tolerance
-    else:
-        app.tolerance = 0.0
-
+    app.tolerance = args.tolerance
+    
     app.config = ConfigParser.RawConfigParser()
     app.config.read(app.element_locator_map_file)
 
